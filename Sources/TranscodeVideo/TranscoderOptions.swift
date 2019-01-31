@@ -1,57 +1,44 @@
-import Foundation
+public struct TranscoderOptions {
+    public let input: InputOptions
+    public let output: OutputOptions?
+    public let quality: QualityOptions?
+    public let video: VideoOptions?
+    public let audio: AudioOptions?
+    public let subtitle: SubtitleOptions?
+    public let externalSubtitle: ExternalSubtitleOptions?
+    public let advanced: AdvancedOptions?
+    public let diagnostic: DiagnosticOptions?
 
-public protocol ArgumentKey {
-    var stringValue: String { get }
-}
+    public init(input: InputOptions, output: OutputOptions? = nil, quality: QualityOptions? = nil, video: VideoOptions? = nil, audio: AudioOptions? = nil, subtitle: SubtitleOptions? = nil, externalSubtitle: ExternalSubtitleOptions? = nil, advanced: AdvancedOptions? = nil, diagnostic: DiagnosticOptions? = nil) {
+        self.input = input
+        self.output = output
+        self.quality = quality
+        self.video = video
+        self.audio = audio
+        self.subtitle = subtitle
+        self.externalSubtitle = externalSubtitle
+        self.advanced = advanced
+        self.diagnostic = diagnostic
+    }
 
-extension ArgumentKey where Self: RawRepresentable, Self.RawValue == String {
-    public var stringValue: String { return rawValue }
-}
-
-extension ArgumentKey {
-    var argumentName: String {
-        guard stringValue.count > 1 else {
-            return "-\(stringValue)"
-        }
-        return "--\(stringValue)"
+    public func buildArguments() -> [String] {
+        return input.buildOptions() + output?.buildOptions() + quality?.buildOptions() + video?.buildOptions() + audio?.buildOptions() + subtitle?.buildOptions() + externalSubtitle?.buildOptions() + advanced?.buildOptions() + diagnostic?.buildOptions() + [input.source.stringValue]
     }
 }
 
-public protocol Optionable {
-    associatedtype ArgumentKeys: ArgumentKey
-    typealias Options = OptionEncoder<ArgumentKeys>
-
-    func encode(to options: Options)
+// These allow the buildArguments function above to Type check instantly.
+// Without them, the expression will fail type checking after attempting to
+// build for over a minute
+private func + (lhs: [String], rhs: [String]?) -> [String] {
+    if let rhs = rhs {
+        return lhs + rhs
+    }
+    return lhs
 }
-
-public final class OptionEncoder<Key: ArgumentKey> {
-    private var options: [(ArgumentKey, String?)] = []
-
-    init() {}
-
-    func convert() -> [String] {
-        return options.map { (name, value) in
-            if let val = value {
-                return "\(name.argumentName)=\(val)" 
-            }
-
-            return name.argumentName
-        }
+private func + (lhs: [String]?, rhs: [String]?) -> [String] {
+    guard let lhs = lhs else {
+        return rhs ?? []
     }
-
-    public func encode<T: StringRepresentable>(_ argument: T?, forKey key: Key) {
-        guard let argument = argument else { return }
-        options.append((key, argument.toString()))
-    }
-
-    public func encode<T: StringRepresentable>(_ arguments: [T], forKey key: Key) {
-        for argument in arguments {
-            options.append((key, argument.toString()))
-        }
-    }
-
-    public func encode(_ argument: Bool, forKey key: Key) {
-        guard argument else { return }
-        options.append((key, nil))
-    }
+    guard let rhs = rhs else { return [] }
+    return lhs + rhs
 }
