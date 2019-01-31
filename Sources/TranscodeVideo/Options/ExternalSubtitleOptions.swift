@@ -5,8 +5,8 @@ public struct ExternalSubtitleOptions: Optionable {
     public let forced: [AddedSubtitle]
     public let add: [AddedSubtitle]
 
-    public init(burnSRT: FilePath, forced: [AddedSubtitle] = [], add: [AddedSubtitle] = []) throws {
-        self.burnSRT = try burnSRT.expanded()
+    public init(burnSRT: FilePath, forced: [AddedSubtitle] = [], add: [AddedSubtitle] = []) {
+        self.burnSRT = burnSRT
         self.forced = forced
         self.add = add
     }
@@ -21,15 +21,15 @@ public struct ExternalSubtitleOptions: Optionable {
     }
 
     public func encode(to options: Options) {
-        options.encode(burnSRT.string, forKey: .burnSRT)
+        options.encode(burnSRT, forKey: .burnSRT)
         for subtitle in forced {
-            options.encode(subtitle.file.string, forKey: .forceSRT)
+            options.encode(subtitle.file, forKey: .forceSRT)
             options.encode(subtitle.language, forKey: .bindSRTLanguage)
             options.encode(subtitle.format, forKey: .bindSRTEncoding)
             options.encode(subtitle.offset, forKey: .bindSRTOffset)
         }
         for subtitle in add {
-            options.encode(subtitle.file.string, forKey: .forceSRT)
+            options.encode(subtitle.file, forKey: .forceSRT)
             options.encode(subtitle.language, forKey: .bindSRTLanguage)
             options.encode(subtitle.format, forKey: .bindSRTEncoding)
             options.encode(subtitle.offset, forKey: .bindSRTOffset)
@@ -43,8 +43,8 @@ public struct AddedSubtitle {
     fileprivate let format: String?
     fileprivate let offset: Int?
 
-    public init(file: FilePath, language: String? = nil, format: String? = nil, offset: Int? = nil) throws {
-        self.file = try file.expanded()
+    public init(file: FilePath, language: String? = nil, format: String? = nil, offset: Int? = nil) {
+        self.file = file
         self.language = language
         self.format = format
         self.offset = offset
