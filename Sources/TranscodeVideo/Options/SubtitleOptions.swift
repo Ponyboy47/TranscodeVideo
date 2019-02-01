@@ -1,8 +1,8 @@
 public struct SubtitleOptions: Optionable {
-    public let burnSubtitle: SubtitleTrack?
-    public let forceSubtitle: SubtitleTrack?
-    public let tracks: [SubtitleTrack]
-    public let noAutoBurn: Bool
+    public var burnSubtitle: SubtitleTrack?
+    public var forceSubtitle: SubtitleTrack?
+    public var tracks: [SubtitleTrack]
+    public var noAutoBurn: Bool
 
     public init(burnSubtitle: SubtitleTrack? = nil, forceSubtitle: SubtitleTrack? = nil, tracks: [SubtitleTrack] = [], noAutoBurn: Bool = false) {
         self.burnSubtitle = burnSubtitle

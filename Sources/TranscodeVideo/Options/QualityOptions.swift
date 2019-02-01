@@ -1,10 +1,10 @@
 public struct QualityOptions: Optionable {
-    public let encoder: HandbrakeEncoder
-    public let ratecontrol: RateControl?
-    public let size: TargetSize?
-    public let bitRates: [TargetBitRate]
-    public let speed: TranscodeSpeed?
-    public let preset: TranscodePreset?
+    public var encoder: HandbrakeEncoder
+    public var ratecontrol: RateControl?
+    public var size: TargetSize?
+    public var bitRates: [TargetBitRate]
+    public var speed: TranscodeSpeed?
+    public var preset: TranscodePreset?
 
     public enum ArgumentKeys: String, ArgumentKey {
         case encoder

@@ -1,13 +1,13 @@
 public struct VideoOptions: Optionable {
-    public let crop: CropDimensions?
-    public let constrainCrop: Bool
-    public let fallbackCrop: FallbackCrop?
-    public let fitTo720p: Bool
-    public let maxWidth: Int?
-    public let maxHeight: Int?
-    public let aspectRatio: AspectRatio?
-    public let frameRate: FrameRate?
-    public let filters: [KeyValueOption]
+    public var crop: CropDimensions?
+    public var constrainCrop: Bool
+    public var fallbackCrop: FallbackCrop?
+    public var fitTo720p: Bool
+    public var maxWidth: Int?
+    public var maxHeight: Int?
+    public var aspectRatio: AspectRatio?
+    public var frameRate: FrameRate?
+    public var filters: [KeyValueOption]
 
     public init(crop: CropDimensions? = nil, constrainCrop: Bool = false, fallbackCrop: FallbackCrop? = nil, fitTo720p: Bool = false, maxWidth: Int? = nil, maxHeight: Int? = nil, aspectRatio: AspectRatio? = nil, frameRate: FrameRate? = nil, filters: [KeyValueOption] = []) {
         self.crop = crop

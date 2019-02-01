@@ -1,5 +1,5 @@
 public struct DiagnosticOptions: Optionable {
-    public let diagnostics: Diagnostics?
+    public var diagnostics: Diagnostics?
 
     public init(_ diagnostics: Diagnostics? = nil) {
         self.diagnostics = diagnostics

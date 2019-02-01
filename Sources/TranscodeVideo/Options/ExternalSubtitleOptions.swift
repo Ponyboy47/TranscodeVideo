@@ -1,9 +1,9 @@
 import struct TrailBlazer.FilePath
 
 public struct ExternalSubtitleOptions: Optionable {
-    public let burnSRT: FilePath
-    public let forced: [AddedSubtitle]
-    public let add: [AddedSubtitle]
+    public var burnSRT: FilePath
+    public var forced: [AddedSubtitle]
+    public var add: [AddedSubtitle]
 
     public init(burnSRT: FilePath, forced: [AddedSubtitle] = [], add: [AddedSubtitle] = []) {
         self.burnSRT = burnSRT
@@ -38,10 +38,10 @@ public struct ExternalSubtitleOptions: Optionable {
 }
 
 public struct AddedSubtitle {
-    fileprivate let file: FilePath
-    fileprivate let language: String?
-    fileprivate let format: String?
-    fileprivate let offset: Int?
+    fileprivate var file: FilePath
+    fileprivate var language: String?
+    fileprivate var format: String?
+    fileprivate var offset: Int?
 
     public init(file: FilePath, language: String? = nil, format: String? = nil, offset: Int? = nil) {
         self.file = file

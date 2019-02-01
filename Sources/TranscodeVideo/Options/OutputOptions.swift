@@ -2,11 +2,11 @@ import struct TrailBlazer.FilePath
 import struct TrailBlazer.GenericPath
 
 public struct OutputOptions: Optionable {
-    public let output: GenericPath?
-    public let format: Format
-    public let chapterNames: FilePath?
-    public let noLog: Bool
-    public let dryRun: Bool
+    public var output: GenericPath?
+    public var format: Format
+    public var chapterNames: FilePath?
+    public var noLog: Bool
+    public var dryRun: Bool
 
     public enum Format {
         case mkv

@@ -1,6 +1,6 @@
 public struct AdvancedOptions: Optionable {
-    public let encoder: [KeyValueOption]
-    public let handbrake: [KeyValueOption]
+    public var encoder: [KeyValueOption]
+    public var handbrake: [KeyValueOption]
 
     public init(encoder: [KeyValueOption], handbrake: [KeyValueOption]) {
         self.encoder = encoder

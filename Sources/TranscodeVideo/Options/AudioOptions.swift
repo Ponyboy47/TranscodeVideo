@@ -1,16 +1,16 @@
 public struct AudioOptions: Optionable {
-    public let mainAudio: TrackName?
-    public let tracks: [AudioTrack]
-    public let widths: [AudioTrack: TrackWidth]
-    public let reverseDoubleOrder: Bool
-    public let preferAC3: Bool
-    public let ac3Encoder: AC3Encoder?
-    public let ac3BitRate: AC3BitRate?
-    public let passthroughAC3BitRate: AC3BitRate?
-    public let copyAudio: [AudioTrack]
-    public let copyAudioNames: [AudioTrack]
-    public let aacEncoder: String?
-    public let noAudio: Bool
+    public var mainAudio: TrackName?
+    public var tracks: [AudioTrack]
+    public var widths: [AudioTrack: TrackWidth]
+    public var reverseDoubleOrder: Bool
+    public var preferAC3: Bool
+    public var ac3Encoder: AC3Encoder?
+    public var ac3BitRate: AC3BitRate?
+    public var passthroughAC3BitRate: AC3BitRate?
+    public var copyAudio: [AudioTrack]
+    public var copyAudioNames: [AudioTrack]
+    public var aacEncoder: String?
+    public var noAudio: Bool
 
     public init(mainAudio: TrackName? = nil, tracks: [AudioTrack] = [], widths: [AudioTrack: TrackWidth] = [:], reverseDoubleOrder: Bool = false, preferAC3: Bool = false, ac3Encoder: AC3Encoder? = nil, ac3BitRate: AC3BitRate? = nil, passthroughAC3BitRate: AC3BitRate? = nil, copyAudio: [AudioTrack] = [], copyAudioNames: [AudioTrack] = [], aacEncoder: String? = nil, noAudio: Bool = false) {
         self.mainAudio = mainAudio

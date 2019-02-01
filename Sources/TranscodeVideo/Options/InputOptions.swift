@@ -1,10 +1,7 @@
-import struct TrailBlazer.FilePath
-
 public struct InputOptions: Optionable {
-    public let source: FilePath
-    public let scan: Bool
-    public let title: Int?
-    public let chapters: ChapterRange?
+    public var scan: Bool
+    public var title: Int?
+    public var chapters: ChapterRange?
 
     public enum ArgumentKeys: String, ArgumentKey {
         case scan
@@ -12,8 +9,7 @@ public struct InputOptions: Optionable {
         case chapters
     }
 
-    public init(source: FilePath, scan: Bool = false, title: Int? = nil, chapters: ChapterRange? = nil) {
-        self.source = source
+    public init(scan: Bool = false, title: Int? = nil, chapters: ChapterRange? = nil) {
         self.scan = scan
         self.title = title
         self.chapters = chapters
