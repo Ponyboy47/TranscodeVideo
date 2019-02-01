@@ -25,6 +25,14 @@ public final class Transcoder {
         return (command.stdout, command.stderror)
     }
 
+    func progress() -> Double {
+        for line in command.stdout.lines().reversed() {
+            guard line.contains("%") else { continue }
+            return Double(line.components(separatedBy: "%").first!.components(separatedBy: " ").last!)! / 100.0
+        }
+        return 0.0
+    }
+
     func start() {
         command = runAsync(transcodeVideoCommand, options.buildArguments() + [file.stringValue])
         if let callback = self.callback {
@@ -32,15 +40,14 @@ public final class Transcoder {
         }
     }
 
-    @discardableResult
-    func wait() -> Int {
-        return command.exitcode()
+    func wait() {
+        command.stdout.readData()
     }
 
     @discardableResult
-    func finish() -> Process.TerminationReason {
-        command.stdout.readData()
-        return command.terminationReason()
+    func finish() -> (Int, Process.TerminationReason) {
+        wait()
+        return (command.exitcode(), command.terminationReason())
     }
 
     func stop() {
