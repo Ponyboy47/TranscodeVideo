@@ -1,7 +1,8 @@
 import struct TrailBlazer.FilePath
-import class Foundation.DispatchQueue
-import struct Foundation.DispatchQoS
+import struct Foundation.CharacterSet
 import class Foundation.Process
+import class Foundation.DispatchQueue
+import class Foundation.DispatchWorkItem
 import class SwiftShell.AsyncCommand
 import protocol SwiftShell.ReadableStream
 import func SwiftShell.runAsync
@@ -14,57 +15,96 @@ public final class Transcoder {
     public let options: TranscoderOptions
     private var command: AsyncCommand!
     private let callback: ((AsyncCommand) -> Void)?
+    private var lastProgressLine: String?
+    private var latestProgressLine: String? {
+        willSet {
+            guard lastProgressLine != newValue else { return }
+            lastProgressLine = latestProgressLine
+
+            guard let progressLine = newValue else { return }
+            guard progressLine.contains("%") else { return }
+
+            for word in progressLine.components(separatedBy: "%").first!.components(separatedBy: .whitespaces).reversed() {
+                guard !word.isEmpty else { continue }
+                guard let progress = Double(word), progress > _progress else { continue }
+                self._progress = progress
+            }
+        }
+    }
+    private var _progress: Double = 0.0
+    public var progress: Double { return _progress / 100.0 }
+    #if os(Linux)
+    private let readabilityQueue = DispatchQueue(label: "com.jtw.transcode-video")
+    private var readabilityWorker: DispatchWorkItem!
+    #endif
 
     public init(for file: FilePath, options: TranscoderOptions? = nil, onCompletion callback: ((AsyncCommand) -> Void)? = nil) {
         self.file = file
         self.options = options ?? TranscoderOptions()
         self.callback = callback
+        #if os(Linux)
+        self.readabilityWorker = DispatchWorkItem(qos: .background) {
+            while let stdout = self.command.stdout.readSome() {
+                self.latestProgressLine = stdout.components(separatedBy: .newlines).reversed().first(where: { $0.contains("Encoding: task") })
+            }
+        }
+        #endif
     }
 
-    func output() -> ProcessOutput {
+    public func output() -> ProcessOutput {
         return (command.stdout, command.stderror)
     }
 
-    func progress() -> Double {
-        for line in command.stdout.lines().reversed() {
-            guard line.contains("%") else { continue }
-            return Double(line.components(separatedBy: "%").first!.components(separatedBy: " ").last!)! / 100.0
-        }
-        return 0.0
-    }
-
-    func start() {
+    public func start() {
         command = runAsync(transcodeVideoCommand, options.buildArguments() + [file.stringValue])
+
         if let callback = self.callback {
             command.onCompletion(callback)
         }
+
+        #if os(macOS)
+        command.stdout.onTextOutput { string in
+            latestProgressLine = string.components(separatedBy: .newlines).reversed().first(where: { $0.contains("Encoding: task") })
+        }
+        #else
+        readabilityQueue.async(execute: readabilityWorker)
+        #endif
     }
 
-    func wait() {
+    public func wait() {
         command.stdout.readData()
+        #if os(Linux)
+        readabilityWorker.cancel()
+        #endif
     }
 
     @discardableResult
-    func finish() -> (Int, Process.TerminationReason) {
+    public func finish() -> (Int, Process.TerminationReason) {
         wait()
         return (command.exitcode(), command.terminationReason())
     }
 
-    func stop() {
+    public func stop() {
         command.stop()
+        #if os(Linux)
+        readabilityWorker.cancel()
+        #endif
     }
 
-    func interrupt() {
+    public func interrupt() {
         command.interrupt()
+        #if os(Linux)
+        readabilityWorker.cancel()
+        #endif
     }
 
     @discardableResult
-    func suspend() -> Bool {
+    public func suspend() -> Bool {
         return command.suspend()
     }
 
     @discardableResult
-    func resume() -> Bool {
+    public func resume() -> Bool {
         return command.resume()
     }
 }
