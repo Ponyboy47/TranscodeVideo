@@ -19,7 +19,10 @@ let transcoder = Transcoder(for: videoFile)
 transcoder.start()
 
 // Check progress
-let progress: Double = transcoder.progress()
+let progress: Double = transcoder.progress
+
+// Get ETA
+let eta: (hours: Int, minutes: Int, seconds: Int) = transcoder.eta
 
 // Forcefully stop transcoding
 transcoder.stop()
@@ -37,7 +40,11 @@ let succeeded = transcoder.resume()
 transcoder.wait()
 
 // Also block until a transcoding completes, but includes exit code and termination reason
-let (exitcode, terminationReason) = transcoder.finish()
+let finish: (exitcode: Int, reason: Process.TerminationReason) = transcoder.finish()
+
+// Get transcoder output
+let output: (stdout: ReadableStream, stderr: ReadableStream) = transcoder.output()
+print(output.stdout.read())
 ```
 
 ## License

@@ -15,6 +15,7 @@ public final class Transcoder {
     public let options: TranscoderOptions
     private var command: AsyncCommand!
     private let callback: ((AsyncCommand) -> Void)?
+    private var beenStarted = false
     private var lastProgressLine: String?
     private var latestProgressLine: String? {
         willSet {
@@ -22,17 +23,23 @@ public final class Transcoder {
             lastProgressLine = latestProgressLine
 
             guard let progressLine = newValue else { return }
-            guard progressLine.contains("%") else { return }
-
-            for word in progressLine.components(separatedBy: "%").first!.components(separatedBy: .whitespaces).reversed() {
-                guard !word.isEmpty else { continue }
-                guard let progress = Double(word), progress > _progress else { continue }
-                self._progress = progress
-            }
+            updateProgressPct(progressLine)
         }
     }
+    private var lastETALine: String?
+    private var latestETALine: String? {
+        willSet {
+            guard lastETALine != newValue else { return }
+            lastETALine = latestETALine
+
+            guard let etaLine = newValue else { return }
+            updateETA(etaLine)
+        }
+    }
+    public private(set) var eta: (hours: Int, minutes: Int, seconds: Int) = (hours: -1, minutes: -1, seconds: -1)
     private var _progress: Double = 0.0
     public var progress: Double { return _progress / 100.0 }
+
     #if os(Linux)
     private let readabilityQueue = DispatchQueue(label: "com.jtw.transcode-video")
     private var readabilityWorker: DispatchWorkItem!
@@ -42,20 +49,17 @@ public final class Transcoder {
         self.file = file
         self.options = options ?? TranscoderOptions()
         self.callback = callback
-        #if os(Linux)
-        self.readabilityWorker = DispatchWorkItem(qos: .background) {
-            while let stdout = self.command.stdout.readSome() {
-                self.latestProgressLine = stdout.components(separatedBy: .newlines).reversed().first(where: { $0.contains("Encoding: task") })
-            }
-        }
-        #endif
     }
 
     public func output() -> ProcessOutput {
-        return (command.stdout, command.stderror)
+        return (stdout: command.stdout, stderr: command.stderror)
     }
 
     public func start() {
+        // Prevent running a transcode command multiple times
+        guard !beenStarted else { return }
+        defer { beenStarted = true }
+
         command = runAsync(transcodeVideoCommand, options.buildArguments() + [file.stringValue])
 
         if let callback = self.callback {
@@ -64,9 +68,18 @@ public final class Transcoder {
 
         #if os(macOS)
         command.stdout.onTextOutput { string in
-            latestProgressLine = string.components(separatedBy: .newlines).reversed().first(where: { $0.contains("Encoding: task") })
+            latestProgressLine = string.components(separatedBy: .newlines).reversed().first(where: { $0.contains(" %") })
+            latestETALine = string.components(separatedBy: .newlines).reversed().first(where: { $0.contains("ETA ") })
         }
         #else
+        self.readabilityWorker = DispatchWorkItem(qos: .background) {
+            while let stdout = self.command.stdout.readSome() {
+                let reversedStdout = stdout.components(separatedBy: .newlines).reversed()
+                self.latestProgressLine = reversedStdout.first(where: { $0.contains(" %") })
+                self.latestETALine = reversedStdout.first(where: { $0.contains("ETA ") })
+            }
+        }
+
         readabilityQueue.async(execute: readabilityWorker)
         #endif
     }
@@ -79,9 +92,9 @@ public final class Transcoder {
     }
 
     @discardableResult
-    public func finish() -> (Int, Process.TerminationReason) {
+    public func finish() -> (exitcode: Int, reason: Process.TerminationReason) {
         wait()
-        return (command.exitcode(), command.terminationReason())
+        return (exitcode: command.exitcode(), reason: command.terminationReason())
     }
 
     public func stop() {
@@ -106,5 +119,27 @@ public final class Transcoder {
     @discardableResult
     public func resume() -> Bool {
         return command.resume()
+    }
+
+    private func updateProgressPct(_ line: String) {
+        guard let pre = line.components(separatedBy: " %").first else { return }
+        guard let num = pre.components(separatedBy: .whitespaces).reversed().first else { return }
+        guard let progress = Double(num), progress > _progress else { return }
+
+        _progress = progress
+    }
+
+    private func updateETA(_ line: String) {
+        guard let post = line.components(separatedBy: "ETA ").last else { return }
+
+        let parts = post.components(separatedBy: "h")
+
+        guard parts.count == 2 else { return }
+        guard let subparts = parts.last?.components(separatedBy: "m"), subparts.count == 2 else { return }
+        guard let hourStr = parts.first, let hours = Int(hourStr) else { return }
+        guard let minuteStr = subparts.first, let minutes = Int(minuteStr) else { return }
+        guard let secondStr = subparts.last?.components(separatedBy: "s").first, let seconds = Int(secondStr) else { return }
+
+        eta = (hours: hours, minutes: minutes, seconds: seconds)
     }
 }
