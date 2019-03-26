@@ -29,7 +29,7 @@ public struct VideoOptions: Optionable {
         case maxWidth = "max-width"
         case maxHeight = "max-height"
         case aspectRatio = "pixel-aspect"
-        case forceFrameRate = "force-rate"
+        case forcedFrameRate = "force-rate"
         case maxFrameRate = "limit-rate"
         case filter
     }
@@ -44,7 +44,7 @@ public struct VideoOptions: Optionable {
         options.encode(aspectRatio, forKey: .aspectRatio)
         if let frameRate = frameRate {
             switch frameRate {
-            case .forced(let rate): options.encode(rate, forKey: .forceFrameRate)
+            case .forced(let rate): options.encode(rate, forKey: .forcedFrameRate)
             case .max(let rate): options.encode(rate, forKey: .maxFrameRate)
             }
         }
