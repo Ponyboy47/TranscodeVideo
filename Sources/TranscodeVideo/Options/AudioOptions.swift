@@ -108,8 +108,6 @@ public enum AC3Encoder: String, StringRepresentable {
 }
 
 public enum AC3BitRate: Int, StringRepresentable {
-    public var stringValue: String { return "\(self.rawValue)" }
-
     case x384 = 384
     case x448 = 448
     case x640 = 640

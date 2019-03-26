@@ -8,7 +8,7 @@ public struct OutputOptions: Optionable {
     public var noLog: Bool
     public var dryRun: Bool
 
-    public enum Format {
+    public enum Format: String {
         case mkv
         case mp4
         case m4v

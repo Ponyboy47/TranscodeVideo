@@ -20,7 +20,7 @@ public struct DiagnosticOptions: Optionable {
     }
 }
 
-public enum Diagnostics {
+public enum Diagnostics: String {
     case verbose
     case quiet
 }

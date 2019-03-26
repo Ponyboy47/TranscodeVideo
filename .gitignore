@@ -4,3 +4,6 @@
 /*.xcodeproj
 Package.resolved
 *.sw[pon]
+*.mp4
+*.mkv
+*.mkv.log

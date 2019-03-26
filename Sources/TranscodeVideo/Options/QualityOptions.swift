@@ -62,7 +62,7 @@ public enum HandbrakeEncoder: String, StringRepresentable {
     case theora
 }
 
-public enum RateControl {
+public enum RateControl: String {
     case abr
     case simple
 }

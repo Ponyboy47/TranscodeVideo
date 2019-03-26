@@ -86,7 +86,14 @@ public enum AspectRatio: StringRepresentable {
     case custom(x: Int, y: Int)
 }
 
-public enum FrameRate {
+public enum FrameRate: StringRepresentable {
+    public var stringValue: String {
+        switch self {
+        case .forced(let value): return "forced=\(value)"
+        case .max(let value): return "max=\(value)"
+        }
+    }
+
     case forced(Int)
     case max(Int)
 }

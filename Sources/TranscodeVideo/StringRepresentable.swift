@@ -11,6 +11,10 @@ extension StringRepresentable where Self: RawRepresentable, Self.RawValue == Str
     public var stringValue: String { return rawValue }
 }
 
+extension StringRepresentable where Self: RawRepresentable, Self.RawValue: Numeric {
+    public var stringValue: String { return "\(rawValue)" }
+}
+
 extension StringRepresentable {
     func toString() -> String {
         if stringValue.contains(" ") {
