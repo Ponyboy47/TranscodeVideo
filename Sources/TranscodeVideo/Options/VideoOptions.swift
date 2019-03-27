@@ -43,9 +43,9 @@ public struct VideoOptions: Optionable {
         options.encode(maxHeight, forKey: .maxHeight)
         options.encode(aspectRatio, forKey: .aspectRatio)
         if let frameRate = frameRate {
-            switch frameRate {
-            case .forced(let rate): options.encode(rate, forKey: .forcedFrameRate)
-            case .max(let rate): options.encode(rate, forKey: .maxFrameRate)
+            switch frameRate.type {
+            case .forced: options.encode(frameRate.rate, forKey: .forcedFrameRate)
+            case .max: options.encode(frameRate.rate, forKey: .maxFrameRate)
             }
         }
         options.encode(filters, forKey: .filter)
@@ -86,14 +86,27 @@ public enum AspectRatio: StringRepresentable {
     case custom(x: Int, y: Int)
 }
 
-public enum FrameRate: StringRepresentable {
-    public var stringValue: String {
-        switch self {
-        case .forced(let value): return "forced=\(value)"
-        case .max(let value): return "max=\(value)"
-        }
+public struct FrameRate: StringRepresentable {
+    public let stringValue: String
+
+    public let type: FrameRateType
+    public let rate: Double
+
+    public enum FrameRateType: String {
+        case forced
+        case max
     }
 
-    case forced(Int)
-    case max(Int)
+    private init(type: FrameRateType, frameRate: Double) {
+        self.stringValue = "\(type)=\(frameRate)"
+        self.type = type
+        self.rate = frameRate
+    }
+
+    public static func forced(_ frameRate: Double) -> FrameRate {
+        return .init(type: .forced, frameRate: frameRate)
+    }
+    public static func max(_ frameRate: Double) -> FrameRate {
+        return .init(type: .max, frameRate: frameRate)
+    }
 }
