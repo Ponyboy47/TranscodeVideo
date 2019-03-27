@@ -98,14 +98,15 @@ public struct FrameRate: StringRepresentable {
     }
 
     public init(type: FrameRateType, frameRate: Double) {
-        self.stringValue = "\(type)=\(frameRate)"
+        stringValue = "\(type)=\(frameRate)"
         self.type = type
-        self.rate = frameRate
+        rate = frameRate
     }
 
     public static func forced(_ frameRate: Double) -> FrameRate {
         return .init(type: .forced, frameRate: frameRate)
     }
+
     public static func max(_ frameRate: Double) -> FrameRate {
         return .init(type: .max, frameRate: frameRate)
     }

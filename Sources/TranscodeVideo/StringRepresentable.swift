@@ -1,7 +1,7 @@
-import protocol TrailBlazer.Path
-import struct TrailBlazer.GenericPath
-import struct TrailBlazer.FilePath
 import struct TrailBlazer.DirectoryPath
+import struct TrailBlazer.FilePath
+import struct TrailBlazer.GenericPath
+import protocol TrailBlazer.Path
 
 public protocol StringRepresentable {
     var stringValue: String { get }

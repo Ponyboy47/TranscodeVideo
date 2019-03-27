@@ -1,11 +1,11 @@
-import struct TrailBlazer.FilePath
 import struct Foundation.CharacterSet
-import class Foundation.Process
 import class Foundation.DispatchQueue
 import class Foundation.DispatchWorkItem
+import class Foundation.Process
 import class SwiftShell.AsyncCommand
 import protocol SwiftShell.ReadableStream
 import func SwiftShell.runAsync
+import struct TrailBlazer.FilePath
 
 public let transcodeVideoCommand = "transcode-video"
 public typealias ProcessOutput = (stdout: ReadableStream, stderr: ReadableStream)
@@ -26,6 +26,7 @@ public final class Transcoder {
             updateProgressPct(progressLine)
         }
     }
+
     private var lastETALine: String?
     private var latestETALine: String? {
         willSet {
@@ -36,6 +37,7 @@ public final class Transcoder {
             updateETA(etaLine)
         }
     }
+
     public private(set) var eta: (hours: Int, minutes: Int, seconds: Int) = (hours: -1, minutes: -1, seconds: -1)
     private var _progress: Double = 0.0
     public var progress: Double { return _progress / 100.0 }

@@ -36,9 +36,9 @@ public final class OptionEncoder<Key: ArgumentKey> {
     init() {}
 
     fileprivate func convert() -> [String] {
-        return options.map { (name, value) in
+        return options.map { name, value in
             if let val = value {
-                return "\(name.argumentName)=\(val)" 
+                return "\(name.argumentName)=\(val)"
             }
 
             return name.argumentName
