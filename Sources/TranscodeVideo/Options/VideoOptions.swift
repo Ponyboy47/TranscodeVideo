@@ -97,7 +97,7 @@ public struct FrameRate: StringRepresentable {
         case max
     }
 
-    private init(type: FrameRateType, frameRate: Double) {
+    public init(type: FrameRateType, frameRate: Double) {
         self.stringValue = "\(type)=\(frameRate)"
         self.type = type
         self.rate = frameRate
