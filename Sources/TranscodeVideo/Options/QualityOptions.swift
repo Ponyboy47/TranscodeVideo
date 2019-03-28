@@ -35,6 +35,7 @@ public struct QualityOptions: Optionable {
             case .abr: options.encode(true, forKey: .abr)
             case .simple: options.encode(true, forKey: .simple)
             case .abvr: options.encode(true, forKey: .abvr)
+            case .default: break
             }
         }
 
@@ -69,6 +70,7 @@ public enum RateControl: String {
     case abr
     case simple
     case abvr
+    case `default`
 }
 
 public enum TargetSize: String, StringRepresentable {
