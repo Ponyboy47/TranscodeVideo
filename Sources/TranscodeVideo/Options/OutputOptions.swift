@@ -1,5 +1,11 @@
+import struct TrailBlazer.DirectoryPath
 import struct TrailBlazer.FilePath
 import struct TrailBlazer.GenericPath
+import protocol TrailBlazer.Path
+
+public protocol OutputPath: Path {}
+extension FilePath: OutputPath {}
+extension DirectoryPath: OutputPath {}
 
 public struct OutputOptions: Optionable {
     public var output: GenericPath?
@@ -14,8 +20,10 @@ public struct OutputOptions: Optionable {
         case m4v
     }
 
-    public init(output: GenericPath? = nil, format: Format = .mkv, chapterNames: FilePath?, noLog: Bool = false, dryRun: Bool = false) {
-        self.output = output
+    public init<PathType: OutputPath>(output: PathType? = nil, format: Format = .mkv, chapterNames: FilePath?, noLog: Bool = false, dryRun: Bool = false) {
+        if let path = output {
+            self.output = GenericPath(path.absolute ?? path)
+        }
         self.format = format
         self.chapterNames = chapterNames
         self.noLog = noLog
