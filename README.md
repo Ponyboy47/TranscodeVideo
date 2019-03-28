@@ -4,7 +4,7 @@ A Swift wrapper around the `transcode-video` command.
 
 ## Installation (SPM)
 ```swift
-.package(url: "https://github.com/Ponyboy47/TranscodeVideo.git", from: "0.2.0")
+.package(url: "https://github.com/Ponyboy47/TranscodeVideo.git", from: "0.3.0")
 ```
 
 ## Usage
