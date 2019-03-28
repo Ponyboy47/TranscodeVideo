@@ -10,13 +10,15 @@ public struct QualityOptions: Optionable {
         case encoder
         case abr
         case simple
+        case abvr
         case target
         case quick
         case veryquick
         case preset
     }
 
-    public init(encoder: HandbrakeEncoder = .x264, ratecontrol: RateControl? = nil, size: TargetSize? = nil, bitRates: [TargetBitRate] = [], speed: TranscodeSpeed? = nil, preset: TranscodePreset? = nil) {
+    public init(encoder: HandbrakeEncoder = .x264, ratecontrol: RateControl? = nil, size: TargetSize? = nil,
+                bitRates: [TargetBitRate] = [], speed: TranscodeSpeed? = nil, preset: TranscodePreset? = nil) {
         self.encoder = encoder
         self.ratecontrol = ratecontrol
         self.size = size
@@ -32,6 +34,7 @@ public struct QualityOptions: Optionable {
             switch ratecontrol {
             case .abr: options.encode(true, forKey: .abr)
             case .simple: options.encode(true, forKey: .simple)
+            case .abvr: options.encode(true, forKey: .abvr)
             }
         }
 
@@ -65,6 +68,7 @@ public enum HandbrakeEncoder: String, StringRepresentable {
 public enum RateControl: String {
     case abr
     case simple
+    case abvr
 }
 
 public enum TargetSize: String, StringRepresentable {

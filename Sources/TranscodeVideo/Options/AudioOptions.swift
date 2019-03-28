@@ -3,27 +3,35 @@ public struct AudioOptions: Optionable {
     public var tracks: [AudioTrack]
     public var widths: [AudioTrack: TrackWidth]
     public var reverseDoubleOrder: Bool
-    public var preferAC3: Bool
+    public var audioFormats: [AudioFormat]
+    public var keepAC3Stereo: Bool
     public var ac3Encoder: AC3Encoder?
     public var ac3BitRate: AC3BitRate?
     public var passthroughAC3BitRate: AC3BitRate?
     public var copyAudio: [AudioTrack]
     public var copyAudioNames: [AudioTrack]
     public var aacEncoder: String?
+    public var mixdown: Mixdown?
     public var noAudio: Bool
 
-    public init(mainAudio: TrackName? = nil, tracks: [AudioTrack] = [], widths: [AudioTrack: TrackWidth] = [:], reverseDoubleOrder: Bool = false, preferAC3: Bool = false, ac3Encoder: AC3Encoder? = nil, ac3BitRate: AC3BitRate? = nil, passthroughAC3BitRate: AC3BitRate? = nil, copyAudio: [AudioTrack] = [], copyAudioNames: [AudioTrack] = [], aacEncoder: String? = nil, noAudio: Bool = false) {
+    public init(mainAudio: TrackName? = nil, tracks: [AudioTrack] = [], widths: [AudioTrack: TrackWidth] = [:],
+                reverseDoubleOrder: Bool = false, audioFormats: [AudioFormat] = [], keepAC3Stereo: Bool = false,
+                ac3Encoder: AC3Encoder? = nil, ac3BitRate: AC3BitRate? = nil, passthroughAC3BitRate: AC3BitRate? = nil,
+                copyAudio: [AudioTrack] = [], copyAudioNames: [AudioTrack] = [], aacEncoder: String? = nil,
+                mixdown: Mixdown? = nil, noAudio: Bool = false) {
         self.mainAudio = mainAudio
         self.tracks = tracks
         self.widths = widths
         self.reverseDoubleOrder = reverseDoubleOrder
-        self.preferAC3 = preferAC3
+        self.audioFormats = audioFormats
+        self.keepAC3Stereo = keepAC3Stereo
         self.ac3Encoder = ac3Encoder
         self.ac3BitRate = ac3BitRate
         self.passthroughAC3BitRate = passthroughAC3BitRate
         self.copyAudio = copyAudio
         self.copyAudioNames = copyAudioNames
         self.aacEncoder = aacEncoder
+        self.mixdown = mixdown
         self.noAudio = noAudio
     }
 
@@ -32,13 +40,15 @@ public struct AudioOptions: Optionable {
         case track = "add-audio"
         case width = "audio-width"
         case reverseDoubleOrder = "reverse-double-order"
-        case preferAC3 = "prefer-ac3"
+        case audioFormat = "audio-format"
+        case keepAC3Stereo = "keep-ac3-stereo"
         case ac3Encoder = "ac3-encoder"
         case ac3BitRate = "ac3-bitrate"
         case passthroughAC3BitRate = "pass-ac3-bitrate"
         case copyAudio = "copy-audio"
         case copyAudioName = "copy-audio-name"
         case aacEncoder = "aac-encoder"
+        case mixdown
         case noAudio = "no-audio"
     }
 
@@ -49,13 +59,15 @@ public struct AudioOptions: Optionable {
             options.encode("\(track.stringValue)=\(width.stringValue)", forKey: .width)
         }
         options.encode(reverseDoubleOrder, forKey: .reverseDoubleOrder)
-        options.encode(preferAC3, forKey: .preferAC3)
+        options.encode(audioFormats, forKey: .audioFormat)
+        options.encode(keepAC3Stereo, forKey: .keepAC3Stereo)
         options.encode(ac3Encoder, forKey: .ac3Encoder)
         options.encode(ac3BitRate, forKey: .ac3BitRate)
         options.encode(passthroughAC3BitRate, forKey: .passthroughAC3BitRate)
         options.encode(copyAudio, forKey: .copyAudio)
         options.encode(copyAudioNames, forKey: .copyAudio)
         options.encode(aacEncoder, forKey: .aacEncoder)
+        options.encode(mixdown, forKey: .mixdown)
         options.encode(noAudio, forKey: .noAudio)
     }
 }
@@ -102,6 +114,25 @@ public enum TrackWidth: String, StringRepresentable {
     case stereo
 }
 
+public struct AudioFormat: StringRepresentable {
+    public enum Track: String {
+        case surround
+        case stereo
+        case all
+    }
+
+    public enum Format: String {
+        case ac3
+        case aac
+    }
+
+    public let stringValue: String
+
+    public init(track: Track, format: Format) {
+        stringValue = "\(track.rawValue)=\(format.rawValue)"
+    }
+}
+
 public enum AC3Encoder: String, StringRepresentable {
     case ac3
     case eac3
@@ -113,4 +144,9 @@ public enum AC3BitRate: Int, StringRepresentable {
     case x640 = 640
     case x768 = 768
     case x1536 = 1536
+}
+
+public enum Mixdown: String, StringRepresentable {
+    case stereo
+    case dpl2
 }

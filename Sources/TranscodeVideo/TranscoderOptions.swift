@@ -9,7 +9,10 @@ public struct TranscoderOptions {
     public var advanced: AdvancedOptions?
     public var diagnostic: DiagnosticOptions?
 
-    public init(input: InputOptions? = nil, output: OutputOptions? = nil, quality: QualityOptions? = nil, video: VideoOptions? = nil, audio: AudioOptions? = nil, subtitle: SubtitleOptions? = nil, externalSubtitle: ExternalSubtitleOptions? = nil, advanced: AdvancedOptions? = nil, diagnostic: DiagnosticOptions? = nil) {
+    public init(input: InputOptions? = nil, output: OutputOptions? = nil, quality: QualityOptions? = nil,
+                video: VideoOptions? = nil, audio: AudioOptions? = nil, subtitle: SubtitleOptions? = nil,
+                externalSubtitle: ExternalSubtitleOptions? = nil, advanced: AdvancedOptions? = nil,
+                diagnostic: DiagnosticOptions? = nil) {
         self.input = input
         self.output = output
         self.quality = quality
@@ -22,7 +25,9 @@ public struct TranscoderOptions {
     }
 
     public func buildArguments() -> [String] {
-        return input?.buildOptions() + output?.buildOptions() + quality?.buildOptions() + video?.buildOptions() + audio?.buildOptions() + subtitle?.buildOptions() + externalSubtitle?.buildOptions() + advanced?.buildOptions() + diagnostic?.buildOptions()
+        return input?.buildOptions() + output?.buildOptions() + quality?.buildOptions() + video?.buildOptions()
+            + audio?.buildOptions() + subtitle?.buildOptions() + externalSubtitle?.buildOptions()
+            + advanced?.buildOptions() + diagnostic?.buildOptions()
     }
 }
 

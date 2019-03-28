@@ -20,7 +20,8 @@ public struct OutputOptions: Optionable {
         case m4v
     }
 
-    public init<PathType: OutputPath>(output: PathType? = nil, format: Format = .mkv, chapterNames: FilePath?, noLog: Bool = false, dryRun: Bool = false) {
+    public init<PathType: OutputPath>(output: PathType? = nil, format: Format = .mkv, chapterNames: FilePath?,
+                                      noLog: Bool = false, dryRun: Bool = false) {
         if let path = output {
             self.output = GenericPath(path.absolute ?? path)
         }

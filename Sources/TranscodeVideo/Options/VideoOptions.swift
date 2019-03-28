@@ -1,22 +1,24 @@
 public struct VideoOptions: Optionable {
-    public var crop: CropDimensions?
+    public var crop: CropDimensions
     public var constrainCrop: Bool
     public var fallbackCrop: FallbackCrop?
     public var fitTo720p: Bool
     public var maxWidth: Int?
     public var maxHeight: Int?
-    public var aspectRatio: AspectRatio?
+    public var pixelAspectRatio: AspectRatio
     public var frameRate: FrameRate?
     public var filters: [KeyValueOption]
 
-    public init(crop: CropDimensions? = nil, constrainCrop: Bool = false, fallbackCrop: FallbackCrop? = nil, fitTo720p: Bool = false, maxWidth: Int? = nil, maxHeight: Int? = nil, aspectRatio: AspectRatio? = nil, frameRate: FrameRate? = nil, filters: [KeyValueOption] = []) {
+    public init(crop: CropDimensions = .zero, constrainCrop: Bool = false, fallbackCrop: FallbackCrop? = nil,
+                fitTo720p: Bool = false, maxWidth: Int? = nil, maxHeight: Int? = nil,
+                pixelAspectRatio: AspectRatio = .square, frameRate: FrameRate? = nil, filters: [KeyValueOption] = []) {
         self.crop = crop
         self.constrainCrop = constrainCrop
         self.fallbackCrop = fallbackCrop
         self.fitTo720p = fitTo720p
         self.maxWidth = maxWidth
         self.maxHeight = maxHeight
-        self.aspectRatio = aspectRatio
+        self.pixelAspectRatio = pixelAspectRatio
         self.frameRate = frameRate
         self.filters = filters
     }
@@ -28,7 +30,7 @@ public struct VideoOptions: Optionable {
         case hq = "720p"
         case maxWidth = "max-width"
         case maxHeight = "max-height"
-        case aspectRatio = "pixel-aspect"
+        case pixelAspectRatio = "pixel-aspect"
         case forcedFrameRate = "force-rate"
         case maxFrameRate = "limit-rate"
         case filter
@@ -41,7 +43,7 @@ public struct VideoOptions: Optionable {
         options.encode(fitTo720p, forKey: .hq)
         options.encode(maxWidth, forKey: .maxWidth)
         options.encode(maxHeight, forKey: .maxHeight)
-        options.encode(aspectRatio, forKey: .aspectRatio)
+        options.encode(pixelAspectRatio, forKey: .pixelAspectRatio)
         if let frameRate = frameRate {
             switch frameRate.type {
             case .forced: options.encode(frameRate.rate, forKey: .forcedFrameRate)
@@ -71,6 +73,7 @@ public enum CropDimensions: StringRepresentable {
 public enum FallbackCrop: String, StringRepresentable {
     case handbrake
     case ffmpeg
+    case minimal
     case none
 }
 
