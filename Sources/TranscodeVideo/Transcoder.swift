@@ -4,10 +4,14 @@ import class Foundation.DispatchWorkItem
 import class Foundation.Process
 import class SwiftShell.AsyncCommand
 import protocol SwiftShell.ReadableStream
+import func SwiftShell.run
 import func SwiftShell.runAsync
 import struct TrailBlazer.FilePath
 
 public let transcodeVideoCommand = "transcode-video"
+// Lock down the version to one which is compatible with 0.25.0
+public let transcodeVideoVersion = [0, 25, 0]
+
 public typealias ProcessOutput = (stdout: ReadableStream, stderr: ReadableStream)
 
 public final class Transcoder {
@@ -47,7 +51,37 @@ public final class Transcoder {
     private var readabilityWorker: DispatchWorkItem!
     #endif
 
+    private static func checkVersionCompatibility() {
+        let which = SwiftShell.run("which", transcodeVideoCommand)
+        guard which.succeeded, !which.stdout.isEmpty else {
+            fatalError("Could not locate the `\(transcodeVideoCommand)` in your PATH. Try installing the rubygem for it with `gem install video_transcoding`")
+        }
+
+        let version = SwiftShell.run(transcodeVideoCommand, "--version")
+        guard version.succeeded, !version.stdout.isEmpty else {
+            fatalError("Failed to retrieve the `\(transcodeVideoCommand)` version")
+        }
+
+        let versionParts = version.stdout.lines().first!.components(separatedBy: " ").last!.components(separatedBy: ".").map { Int($0)! }
+        guard versionParts != transcodeVideoVersion else { return }
+
+        guard versionParts.count == transcodeVideoVersion.count,
+            versionParts[0] == transcodeVideoVersion[0],
+            versionParts[1] == transcodeVideoVersion[1] else {
+            var error = "Unsupported `\(transcodeVideoCommand) version: \(versionParts.map(String.init).joined(separator: ".")). "
+            if versionParts[0] < transcodeVideoVersion[0]
+                || versionParts[0] == transcodeVideoVersion[0] && versionParts[1] < transcodeVideoVersion[1] {
+                error += "Try upgrading with `gem update video_transcoding`"
+            } else if versionParts[0] > transcodeVideoVersion[0]
+                || versionParts[0] == transcodeVideoVersion[0] && versionParts[1] > transcodeVideoVersion[1] {
+                error += "Log a ticket at https://github.com/Ponyboy47/TranscodeVideo/issues to update support for the current version"
+            }
+            fatalError(error)
+        }
+    }
+
     public init(for file: FilePath, options: TranscoderOptions? = nil, onCompletion callback: ((AsyncCommand) -> Void)? = nil) {
+        Transcoder.checkVersionCompatibility()
         self.file = file
         self.options = options ?? TranscoderOptions()
         self.callback = callback

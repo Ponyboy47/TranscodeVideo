@@ -4,8 +4,13 @@ A Swift wrapper around the `transcode-video` command.
 
 ## Installation (SPM)
 ```swift
-.package(url: "https://github.com/Ponyboy47/TranscodeVideo.git", from: "0.3.0")
+.package(url: "https://github.com/Ponyboy47/TranscodeVideo.git", from: "0.3.1")
 ```
+NOTES: 
+Due to the intricacies of supporting all the various command line options, each
+version of this library will be locked down to a version of the transcode-video
+utility.
+Version 0.3.1 is locked to version 0.25.x of transcode-video
 
 ## Usage
 ```swift
