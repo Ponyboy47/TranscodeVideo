@@ -1,24 +1,95 @@
+public let audioDefaults = (reverseDoubleOrder: false, keepAC3Stereo: false, ac3Encoder: AC3Encoder.ac3,
+                            ac3BitRate: AC3BitRate.x640, passthroughAC3BitRate: AC3BitRate.x640,
+                            mixdown: Mixdown.stereo, noAudio: false)
+
+/// Options related to the audio output of the transcoded media
 public struct AudioOptions: Optionable {
+    /// Select main track by number or first with language code assigning it an optional name
     public var mainAudio: TrackName?
+    /**
+     Add track selected by number assigning it an optional name or add tracks selected with one or more language codes or
+     add all tracks
+     */
     public var tracks: [AudioTrack]
+    /**
+     Set audio output width for specific track by number or main track or other non-main tracks or all tracks with
+     `double` to allow room for two output tracks with `surround` to allow single surround or stereo track with `stereo`
+     to allow only single stereo track
+     */
     public var widths: [AudioTrack: TrackWidth]
+    /// Reverse order of `double` width audio output tracks
     public var reverseDoubleOrder: Bool
+    /// Set audio format for specific or all output tracks
     public var audioFormats: [AudioFormat]
+    /// Copy rather than transcode AC-3 stereo or mono audio tracks even when the current stereo format is AAC
     public var keepAC3Stereo: Bool
-    public var ac3Encoder: AC3Encoder?
-    public var ac3BitRate: AC3BitRate?
-    public var passthroughAC3BitRate: AC3BitRate?
+    /// Set AC-3 audio encoder
+    public var ac3Encoder: AC3Encoder
+    /// Set AC-3 surround audio bitrate
+    public var ac3BitRate: AC3BitRate
+    /// Set AC-3 surround pass-through bitrate
+    public var passthroughAC3BitRate: AC3BitRate
+    /**
+     Try to copy track selected by number in its original format falling back to surround format if original not allowed
+     or try to copy all tracks in same manner
+     */
     public var copyAudio: [AudioTrack]
+    /**
+     Copy original track name selected by number unless the name is specified with another option or try to copy all
+     track names in same manner
+     */
     public var copyAudioNames: [AudioTrack]
+    /// Use named AAC audio encoder
     public var aacEncoder: String?
-    public var mixdown: Mixdown?
+    /// Set mixdown for stereo audio output tracks to regular stereo or Dolby Pro Logic II format
+    public var mixdown: Mixdown
+    /// Disable all audio output
     public var noAudio: Bool
 
+    /**
+     - Parameters:
+       - mainAudio: Select main track by number or first with language code assigning it an optional name
+                    (default: first track, i.e. 1)
+                    (language code must be ISO 639-2 format, e.g.: `eng`)
+                    (default output can be two audio tracks, both surround and stereo, i.e. width is `double`)
+       - tracks: Add track selected by number assigning it an optional name or add tracks selected with one or more
+                 language codes or add all tracks
+                 (language code must be ISO 639-2 format, e.g.: `eng`)
+                 (multiple languages are separated by commas)
+                 (default output is single AAC audio track, i.e. width is `stereo`)
+       - widths: Set audio output width for specific track by number or main track or other non-main tracks or all tracks
+                 with `double` to allow room for two output tracks with `surround` to allow single surround or stereo
+                 track with `stereo` to allow only single stereo track
+       - reverseDoubleOrder: Reverse order of `double` width audio output tracks
+       - audioFormats: Set audio format for specific or all output tracks
+                       (default for surround: ac3; default for stereo: aac)
+       - keepAC3Stereo: Copy rather than transcode AC-3 stereo or mono audio tracks even when the current stereo format
+                        is AAC
+       - ac3Encoder: Set AC-3 audio encoder
+                     (default: ac3)
+       - ac3BitRate: Set AC-3 surround audio bitrate
+                     (default: 640)
+       - passthroughAC3BitRate: Set AC-3 surround pass-through bitrate
+                                (default: 640)
+       - copyAudio: Try to copy track selected by number in its original format falling back to surround format if
+                    original not allowed or try to copy all tracks in same manner
+                    (only applies to main and explicitly added audio tracks)
+       - copyAudioNames: Copy original track name selected by number unless the name is specified with another option or
+                         try to copy all track names in same manner
+                         (only applies to main and explicitly added audio tracks)
+       - aacEncoder: Use named AAC audio encoder
+                     (default: platform dependent)
+       - mixdown: Set mixdown for stereo audio output tracks to regular stereo or Dolby Pro Logic II format
+                  (default: stereo)
+       - noAudio: Disable all audio output
+     */
     public init(mainAudio: TrackName? = nil, tracks: [AudioTrack] = [], widths: [AudioTrack: TrackWidth] = [:],
-                reverseDoubleOrder: Bool = false, audioFormats: [AudioFormat] = [], keepAC3Stereo: Bool = false,
-                ac3Encoder: AC3Encoder? = nil, ac3BitRate: AC3BitRate? = nil, passthroughAC3BitRate: AC3BitRate? = nil,
-                copyAudio: [AudioTrack] = [], copyAudioNames: [AudioTrack] = [], aacEncoder: String? = nil,
-                mixdown: Mixdown? = nil, noAudio: Bool = false) {
+                reverseDoubleOrder: Bool = audioDefaults.reverseDoubleOrder, audioFormats: [AudioFormat] = [],
+                keepAC3Stereo: Bool = audioDefaults.keepAC3Stereo, ac3Encoder: AC3Encoder = audioDefaults.ac3Encoder,
+                ac3BitRate: AC3BitRate = audioDefaults.ac3BitRate,
+                passthroughAC3BitRate: AC3BitRate = audioDefaults.passthroughAC3BitRate, copyAudio: [AudioTrack] = [],
+                copyAudioNames: [AudioTrack] = [], aacEncoder: String? = nil, mixdown: Mixdown = audioDefaults.mixdown,
+                noAudio: Bool = audioDefaults.noAudio) {
         self.mainAudio = mainAudio
         self.tracks = tracks
         self.widths = widths
@@ -35,7 +106,7 @@ public struct AudioOptions: Optionable {
         self.noAudio = noAudio
     }
 
-    public enum ArgumentKeys: String, ArgumentKey {
+    enum ArgumentKeys: String, ArgumentKey {
         case mainAudio = "main-audio"
         case track = "add-audio"
         case width = "audio-width"
@@ -52,23 +123,23 @@ public struct AudioOptions: Optionable {
         case noAudio = "no-audio"
     }
 
-    public func encode(to options: Options) {
+    func encode(to options: Options) {
         options.encode(mainAudio, forKey: .mainAudio)
         options.encode(tracks, forKey: .track)
         for (track, width) in widths {
             options.encode("\(track.stringValue)=\(width.stringValue)", forKey: .width)
         }
-        options.encode(reverseDoubleOrder, forKey: .reverseDoubleOrder)
+        options.encode(reverseDoubleOrder, inherent: audioDefaults.reverseDoubleOrder, forKey: .reverseDoubleOrder)
         options.encode(audioFormats, forKey: .audioFormat)
-        options.encode(keepAC3Stereo, forKey: .keepAC3Stereo)
-        options.encode(ac3Encoder, forKey: .ac3Encoder)
-        options.encode(ac3BitRate, forKey: .ac3BitRate)
-        options.encode(passthroughAC3BitRate, forKey: .passthroughAC3BitRate)
+        options.encode(keepAC3Stereo, inherent: audioDefaults.keepAC3Stereo, forKey: .keepAC3Stereo)
+        options.encode(ac3Encoder, inherent: audioDefaults.ac3Encoder, forKey: .ac3Encoder)
+        options.encode(ac3BitRate, inherent: audioDefaults.ac3BitRate, forKey: .ac3BitRate)
+        options.encode(passthroughAC3BitRate, inherent: audioDefaults.passthroughAC3BitRate, forKey: .passthroughAC3BitRate)
         options.encode(copyAudio, forKey: .copyAudio)
         options.encode(copyAudioNames, forKey: .copyAudio)
         options.encode(aacEncoder, forKey: .aacEncoder)
-        options.encode(mixdown, forKey: .mixdown)
-        options.encode(noAudio, forKey: .noAudio)
+        options.encode(mixdown, inherent: audioDefaults.mixdown, forKey: .mixdown)
+        options.encode(noAudio, inherent: audioDefaults.noAudio, forKey: .noAudio)
     }
 }
 

@@ -1,16 +1,22 @@
+/// Options related to diagnostic reporting
 public struct DiagnosticOptions: Optionable {
+    /// Set the level of diagnostic information to be reported
     public var diagnostics: Diagnostics?
 
+    /**
+     - Parameter diagnostics: Set the level of diagnostic information to be reported
+                              (verbose or quiet)
+     */
     public init(_ diagnostics: Diagnostics? = nil) {
         self.diagnostics = diagnostics
     }
 
-    public enum ArgumentKeys: String, ArgumentKey {
+    enum ArgumentKeys: String, ArgumentKey {
         case verbose
         case quiet
     }
 
-    public func encode(to options: Options) {
+    func encode(to options: Options) {
         guard let diagnostics = self.diagnostics else { return }
 
         switch diagnostics {
